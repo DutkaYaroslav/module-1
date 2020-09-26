@@ -1,0 +1,27 @@
+{
+  "name": "module-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DutkaYaroslav/module-1.git"
+  },
+  "author": "YaroslavDutka",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DutkaYaroslav/module-1/issues"
+  },
+  "homepage": "https://github.com/DutkaYaroslav/module-1#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "yargs": "^16.0.3"
+  }
+}
