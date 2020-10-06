@@ -3,11 +3,30 @@ const { promises: fsPromises } = fs;
 const path = require("path");
 const contactsPath = path.join(__dirname, "./db/contacts.json");
 
-function listContacts() {
-  return fsPromises
+// async function listContacts() {
+//   const testResult = JSON.parse(
+//     await fsPromises.readFile(contactsPath, "utf-8")
+//   );
+//   // .then((data) => JSON.parse(data));
+//   console.log("test contact", testResult);
+//   return testResult;
+// }
+
+function listContacts(req, res) {
+  fsPromises
     .readFile(contactsPath, "utf-8")
-    .then((data) => console.log(JSON.parse(data)));
+    .then((data) => res.send(JSON.parse(data)));
 }
+
+// async function listContacts(next) {
+//   try {
+//     const data = await fsPromises.readFile(contactsPath, "utf-8");
+//     const objData = JSON.parse(data);
+//     return objData;
+//   } catch (err) {
+//     next(err);
+//   }
+// }
 
 function getContactById(contactId) {
   fsPromises
