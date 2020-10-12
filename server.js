@@ -33,7 +33,7 @@ class UserService {
   }
 
   initRoutes() {
-    this.server.use("/users", users);
+    this.server.use("/contacts", users);
   }
 
   erroHandler() {

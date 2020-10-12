@@ -4,6 +4,8 @@ const UserController = require("./contacts.js");
 const userRouter = Router();
 
 userRouter.get("/", UserController.getUsers);
+userRouter.get("/:id", UserController.getUserById);
+
 
 userRouter.post(
   "/",
@@ -13,7 +15,7 @@ userRouter.post(
 
 userRouter.patch(
   "/:id",
-  UserController.validateUserUpdate,
+  // UserController.validateUserUpdate,
   UserController.updateUser
 );
 

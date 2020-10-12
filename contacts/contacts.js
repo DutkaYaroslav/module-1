@@ -1,113 +1,130 @@
-// const fs = require("fs");
-// const { promises: fsPromises } = fs;
 const path = require("path");
-const contactsPath =  path.join(__dirname, "../db/contacts.json");
+const contactsPath = path.join(__dirname,"../db/contacts.json");
 const Joi = require("joi");
+  
+const fs = require("fs");
+const { promises: fsPromises } = fs;
+
+console.log(contactsPath)
+
 
 
 
 class UserController {
-  getUsers(req, res, next) {
+  get parsedContactsPath() {
+    return this._parsedContactsPath.bind(this)
+  }
+  async _parsedContactsPath(next){
+    try{
+    const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
+    return JSON.parse(dataBase)
+    }catch(err){
+    next(err)}
+  }
+
+ async getUsers(req, res, next) {
     try {
       
-      return res.send(contactsPath);
+      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
+      return res.send(JSON.parse(dataBase))
     } catch (err) {
       next(err);
     }
   }
 
-  createUser(req, res, next) {
+  async getUserById(req, res, next) {
     try {
-      contactsPath.push({
-        id: contactsPath.length + 1,
+      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
+      const result = JSON.parse(dataBase)
+     
+      
+      const oneId = result.filter((contact) => {
+        return contact.id === Number(req.params.id);
+      });
+      // console.log(req)
+      fsPromises.readFile(contactsPath, JSON.stringify(oneId))
+      
+      return res.send(oneId);
+
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async createUser(req, res, next) {
+    try {
+
+      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
+      const result = JSON.parse(dataBase)
+      result.push({
+        id: result.length + 1,
         ...req.body,
       });
-
+      fsPromises.writeFile(contactsPath, JSON.stringify(result))
       return res.send({ message: "User created" });
     } catch (err) {
       next(err);
+
     }
   }
 
-  updateUser(req, res, next) {
+  async updateUser(req, res, next) {
     try {
-      const targetUsersIndex = UserController.findUserIndexById(
-        req.params.id,
-        res
-      );
+      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
+      const result = JSON.parse(dataBase)
 
-      if (targetUsersIndex === undefined) {
-        return res.status(404).send({ message: "User not found" });
-      }
-
-      contactsPath[targetUsersIndex] = {
-        ...contactsPath[targetUsersIndex],
+  
+      
+      const final =  {
+        id: Number(req.params.id),
         ...req.body,
       };
+      console.log(final)
 
-      return res.status(204).end();
+      const NewList = result.map(contact => {
+        
+        if(contact.id === Number(req.params.id)){
+          return final;
+        }
+        return contact
+      })
+      fsPromises.writeFile(contactsPath, JSON.stringify(NewList))
+
+      return res.send(NewList);
     } catch (err) {
       next(err);
     }
   }
 
-  deleteUser(req, res, next) {
+  async deleteUser(req, res, next,) {
     try {
-      const targetUsersIndex = UserController.findUserIndexById(
-        req.params.id,
-        res
-      );
+     const takeArray = await fsPromises.readFile(contactsPath, 'utf-8')
+     const result = JSON.parse(takeArray)
 
-      if (targetUsersIndex === undefined) {
-        return;
-      }
-
-      contactsPath.splice(targetUsersIndex, 1);
-
-      return res.status(204).end();
+      const deleted = result.filter((contact) => {
+        return contact.id !== Number(req.params.id);
+      });
+      // console.log(res)
+      fsPromises.writeFile(contactsPath, JSON.stringify(deleted))
+      
+      return res.send(deleted);
     } catch (err) {
       next(err);
     }
   }
 
-  validateUserUpdate(req, res, next) {
-    const updateSchemaValidator = Joi.object({
-      name: Joi.string(),
-      email: Joi.string(),
-    });
-
-    UserController.checkValidationError(updateSchemaValidator, req, res, next);
-  }
 
   validateCreateUser(req, res, next) {
     const createSchemaValidator = Joi.object({
       name: Joi.string().required(),
-      email: Joi.string().required(),
+      email: Joi.string().required()
     });
-
-    UserController.checkValidationError(createSchemaValidator, req, res, next);
+  const result = createSchemaValidator.validate(req.body)
+  if(result.error){
+  res.send(result.error)
+  }
+next()
   }
 
-  static checkValidationError(schema, req, res, next) {
-    const { error } = schema.validate(req.body);
-
-    if (error) {
-      const { message } = error.details[0];
-      return res.status(400).send({ error: message });
-    }
-    next();
-  }
-
-  static findUserIndexById(userId, res) {
-    const id = parseInt(userId);
-    const targetUsersIndex = contactsPath.findIndex((user) => user.id === id);
-
-    if (targetUsersIndex === -1) {
-      return res.status(404).send({ message: "Not found" });
-    }
-
-    return targetUsersIndex;
-  }
 }
-
 module.exports = new UserController();
