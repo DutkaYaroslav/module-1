@@ -15,7 +15,6 @@ userRouter.post(
 
 userRouter.patch(
   "/:id",
-  // UserController.validateUserUpdate,
   UserController.updateUser
 );
 
