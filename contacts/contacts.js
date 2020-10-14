@@ -10,25 +10,11 @@ const { promises: fsPromises } = fs;
 class UserController {
 
    async parsed() {
-
-      const a = await JSON.parse( fsPromises.readFile(contactsPath, 'utf-8'))
-      return a;
-    
-  
+      const contact = await  fsPromises.readFile(contactsPath, 'utf-8')
+      const result = await JSON.parse(contact)
+      return result;
   }
    
-
-  // get parsedContactsPath() {
-  //   return this._parsedContactsPath.bind(this)
-  // }
-  // async _parsedContactsPath(next) {
-  //   try {
-  //     const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
-  //     return JSON.parse(dataBase)
-  //   } catch (err) {
-  //     next(err)
-  //   }
-  // }
 
   async getUsers(req, res, next) {
     try {
@@ -40,13 +26,11 @@ class UserController {
     }
   }
 
-  async getUserById(req, res, next) {
+  getUserById = async (req, res, next) => {
     try {
 
-      const result = this.parsed()
-      console.log(result)
-      console.log(this)
-
+      const result = await this.parsed()
+      
 
       const oneId = result.filter((contact) => {
         return contact.id === Number(req.params.id);
@@ -60,11 +44,11 @@ class UserController {
     }
   }
 
-  async createUser(req, res, next) {
+   createUser = async (req, res, next) => {
     try {
 
-      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
-      const result = JSON.parse(dataBase)
+      const result = await this.parsed()
+      
       result.push({
         id: result.length + 1,
         ...req.body,
@@ -77,10 +61,10 @@ class UserController {
     }
   }
 
-  async updateUser(req, res, next) {
+  updateUser = async (req, res, next) => {
     try {
-      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
-      const result = JSON.parse(dataBase)
+    
+      const result = await this.parsed()
 
 
 
@@ -104,11 +88,10 @@ class UserController {
     }
   }
 
-  async deleteUser(req, res, next,) {
+  deleteUser = async (req, res, next,) => {
     try {
-      const takeArray = await fsPromises.readFile(contactsPath, 'utf-8')
-      const result = JSON.parse(takeArray)
-
+      const result = await this.parsed()
+      
       const deleted = result.filter((contact) => {
         return contact.id !== Number(req.params.id);
       });
