@@ -1,120 +1,65 @@
-const path = require("path");
-const contactsPath = path.join(__dirname, "../db/contacts.json");
-const Joi = require("joi");
-
-const fs = require("fs");
-const { promises: fsPromises } = fs;
-
-
+const mongoose = require('mongoose');
+const userModel = require('./contacts.model');
 
 class UserController {
-
-   async parsed() {
-      const contact = await  fsPromises.readFile(contactsPath, 'utf-8')
-      const result = await JSON.parse(contact)
-      return result;
-  }
-   
-
-  async getUsers(req, res, next) {
+  async getContacts(req, res, next) {
     try {
+      const users = await userModel.find();
 
-      const dataBase = await fsPromises.readFile(contactsPath, 'utf-8')
-      return res.send(JSON.parse(dataBase))
+      return res.send(users);
     } catch (err) {
       next(err);
     }
   }
 
-  getUserById = async (req, res, next) => {
+  async createContact(req, res, next) {
     try {
+      const user = await userModel.create(req.body);
 
-      const result = await this.parsed()
-      
+      return res.send(user);
+    } catch (err) {
+      next(err);
+    }
+  }
 
-      const oneId = result.filter((contact) => {
-        return contact.id === Number(req.params.id);
+  async getContactById(req, res, next) {
+    try {
+      const user = await userModel.findById(req.params.id);
+
+      if (!user) {
+        return res.status(404).send('user was not found');
+      }
+
+      return res.send(user);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async updateContactById(req, res, next) {
+    try {
+      const user = await userModel.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
       });
-      fsPromises.readFile(contactsPath, JSON.stringify(oneId))
 
-      return res.send(oneId);
+      if (!user) {
+        return res.status(404).send('user was not found');
+      }
 
-    } catch (err) {
-      next(err)
-    }
-  }
-
-   createUser = async (req, res, next) => {
-    try {
-
-      const result = await this.parsed()
-      
-      result.push({
-        id: result.length + 1,
-        ...req.body,
-      });
-      fsPromises.writeFile(contactsPath, JSON.stringify(result))
-      return res.send({ message: "User created" });
-    } catch (err) {
-      next(err);
-
-    }
-  }
-
-  updateUser = async (req, res, next) => {
-    try {
-    
-      const result = await this.parsed()
-
-
-
-      const final = {
-        id: Number(req.params.id),
-        ...req.body,
-      };
-
-      const NewList = result.map(contact => {
-
-        if (contact.id === Number(req.params.id)) {
-          return final;
-        }
-        return contact
-      })
-      fsPromises.writeFile(contactsPath, JSON.stringify(NewList))
-
-      return res.send(NewList);
+      return res.status(204).end();
     } catch (err) {
       next(err);
     }
   }
 
-  deleteUser = async (req, res, next,) => {
+  async deleteContact(req, res, next) {
     try {
-      const result = await this.parsed()
-      
-      const deleted = result.filter((contact) => {
-        return contact.id !== Number(req.params.id);
-      });
-      fsPromises.writeFile(contactsPath, JSON.stringify(deleted))
+      const user = await userModel.findByIdAndDelete(req.params.id);
 
-      return res.send(deleted);
+      return res.send(user);
     } catch (err) {
       next(err);
     }
   }
-
-
-  validateCreateUser(req, res, next) {
-    const createSchemaValidator = Joi.object({
-      name: Joi.string().required(),
-      email: Joi.string().required()
-    });
-    const result = createSchemaValidator.validate(req.body)
-    if (result.error) {
-      res.send(result.error)
-    }
-    next()
-  }
-
 }
 module.exports = new UserController();
