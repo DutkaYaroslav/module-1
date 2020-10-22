@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const userModel = require('./contacts.model');
 
-class UserController {
+class ContactController {
   async getContacts(req, res, next) {
     try {
-      const users = await userModel.find();
+      const contacts = await userModel.find();
 
-      return res.send(users);
+      return res.send(contacts);
     } catch (err) {
       next(err);
     }
@@ -14,9 +14,9 @@ class UserController {
 
   async createContact(req, res, next) {
     try {
-      const user = await userModel.create(req.body);
+      const contact = await userModel.create(req.body);
 
-      return res.send(user);
+      return res.send(contact);
     } catch (err) {
       next(err);
     }
@@ -24,13 +24,13 @@ class UserController {
 
   async getContactById(req, res, next) {
     try {
-      const user = await userModel.findById(req.params.id);
+      const contact = await userModel.findById(req.params.id);
 
-      if (!user) {
-        return res.status(404).send('user was not found');
+      if (!contact) {
+        return res.status(404).send('contact was not found');
       }
 
-      return res.send(user);
+      return res.send(contact);
     } catch (err) {
       next(err);
     }
@@ -38,12 +38,16 @@ class UserController {
 
   async updateContactById(req, res, next) {
     try {
-      const user = await userModel.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-      });
+      const contact = await userModel.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+        },
+      );
 
-      if (!user) {
-        return res.status(404).send('user was not found');
+      if (!contact) {
+        return res.status(404).send('contact was not found');
       }
 
       return res.status(204).end();
@@ -54,12 +58,12 @@ class UserController {
 
   async deleteContact(req, res, next) {
     try {
-      const user = await userModel.findByIdAndDelete(req.params.id);
+      const contact = await userModel.findByIdAndDelete(req.params.id);
 
-      return res.send(user);
+      return res.send(contact);
     } catch (err) {
       next(err);
     }
   }
 }
-module.exports = new UserController();
+module.exports = new ContactController();
