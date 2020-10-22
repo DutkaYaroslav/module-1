@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const userModel = require('./contacts.model');
+const contactModel = require('./contacts.model');
 
 class ContactController {
   async getContacts(req, res, next) {
     try {
-      const contacts = await userModel.find();
+      const contacts = await contactModel.find();
 
       return res.send(contacts);
     } catch (err) {
@@ -14,7 +14,7 @@ class ContactController {
 
   async createContact(req, res, next) {
     try {
-      const contact = await userModel.create(req.body);
+      const contact = await contactModel.create(req.body);
 
       return res.send(contact);
     } catch (err) {
@@ -24,7 +24,7 @@ class ContactController {
 
   async getContactById(req, res, next) {
     try {
-      const contact = await userModel.findById(req.params.id);
+      const contact = await contactModel.findById(req.params.id);
 
       if (!contact) {
         return res.status(404).send('contact was not found');
@@ -38,7 +38,7 @@ class ContactController {
 
   async updateContactById(req, res, next) {
     try {
-      const contact = await userModel.findByIdAndUpdate(
+      const contact = await contactModel.findByIdAndUpdate(
         req.params.id,
         req.body,
         {
@@ -58,7 +58,7 @@ class ContactController {
 
   async deleteContact(req, res, next) {
     try {
-      const contact = await userModel.findByIdAndDelete(req.params.id);
+      const contact = await contactModel.findByIdAndDelete(req.params.id);
 
       return res.send(contact);
     } catch (err) {
