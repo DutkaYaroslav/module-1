@@ -1,13 +1,12 @@
+const express = require('express');
+const mongoose = require('mongoose');
 
-const express = require("express");
-const cors = require("cors");
-const logger = require("morgan");
+const users = require('./contacts/contacts.router');
 
-const users = require("./contacts/contacts.router");
+require('dotenv').config();
 
-require("dotenv").config();
-
-const PORT = process.env.PORT;
+const URI = process.env.MONGO_URI || '';
+const PORT = process.env.PORT || 3000;
 
 class UserService {
   constructor() {
@@ -18,6 +17,7 @@ class UserService {
     this.initServer();
     this.initMiddleware();
     this.initRoutes();
+    this.initDb();
     this.erroHandler();
     this.startListening();
   }
@@ -28,12 +28,26 @@ class UserService {
 
   initMiddleware() {
     this.server.use(express.json());
-    this.server.use(cors({ origin: "http://localhost:3000" }));
-    this.server.use(logger("dev"));
   }
 
   initRoutes() {
-    this.server.use("/contacts", users);
+    this.server.use('/contacts', users);
+  }
+
+  async initDb() {
+    const opts = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
+
+    try {
+      await mongoose.connect(URI, opts);
+    } catch (err) {
+      console.log(`Server was closed with ${err}`);
+      process.exit(1);
+    }
   }
 
   erroHandler() {
@@ -47,99 +61,9 @@ class UserService {
 
   startListening() {
     this.server.listen(PORT, () =>
-      console.log(`Server was started on port: ${PORT}`)
+      console.log(`Database connection successful: ${PORT}`),
     );
   }
 }
 
 module.exports = UserService;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const fs = require("fs");
-// const { promises: fsPromises } = fs;
-// const path = require("path");
-// const contactsPath = path.join(__dirname, "./db/contacts.json");
-
-// const express = require("express");
-// // const logger = require("morgan");
-// // const cors = require("cors");
-
-// const {
-//   listContacts,
-//   getContactById,
-//   removeContact,
-//   addContact,
-// } = require("./contacts/contacts.js");
-
-// const app = express();
-// app.use(express.json());
-
-// // app.get("/", (req, res) => {
-// //   res.send("hello");
-// // });
-
-// app.get("/", async (req, res) => {
-//   try {
-//     const testResult = JSON.parse(
-//       await fsPromises.readFile(contactsPath, "utf-8")
-//     );
-//     return res.send(testResult);
-//   } catch (error) {
-//     next(error);
-//   }
-//   //  console.log("test server", listContacts());
-//   // await res.send(function listContacts() {
-
-//   //   const testResult = fsPromises
-//   //     .readFile(contactsPath, "utf-8")
-//   //     .then((data) => JSON.parse(data));
-//   //   console.log("test contact", testResult);
-//   //   return testResult;
-//   // });
-// });
-
-// app.listen(3000);
-// // const express = require("express");
-// // const logger = require("morgan");
-// // const cors = require("cors");
-// // const {
-// //   listContacts,
-// //   getContactById,
-// //   removeContact,
-// //   addContact,
-// // } = require("./contacts.js");
-// // const app = express();
-// // app.use(express.json());
-// // app.get("/", listContacts());
-// // app.listen(3000, () => console.log("Server was started"));
