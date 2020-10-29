@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const users = require('./contacts/contacts.router');
+const contacts = require('./contacts/contacts.router');
+const users = require('./users/user.router');
 
 require('dotenv').config();
 
@@ -31,7 +32,8 @@ class UserService {
   }
 
   initRoutes() {
-    this.server.use('/contacts', users);
+    this.server.use('/contacts', contacts);
+    this.server.use('/users', users);
   }
 
   async initDb() {
